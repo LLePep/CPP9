@@ -39,8 +39,12 @@ public:
             result = d_stack.top() - result;
         else if (my_operator == '*')
             result = d_stack.top() * result;
-        else// '/'
+        else// '/' faire la division par zero
+        {
+            if (result == 0)
+                throw std::;//not possible division
             result = d_stack.top() / result;
+        }
         d_stack.pop();
         d_stack.push(result);
     };
