@@ -5,7 +5,7 @@ CFLAGS := -Wall -Wextra -Werror -MMD -MP -I include/ -std=c++98
 D_OBJ := .obj/
 
 F_SRC := main.cpp\
-		 BitcoinExchange.cpp
+		 RPN.cpp
 
 D_SRC := src/
 
@@ -15,7 +15,7 @@ OBJ := $(subst $(D_SRC), $(D_OBJ), $(SRC:.cpp=.o))
 
 DEPS := $(OBJ:.o=.d)
 
-NAME := btc
+NAME := RPN
 
 all : $(NAME)
 

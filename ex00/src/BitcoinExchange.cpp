@@ -1,53 +1,114 @@
 #include "BitcoinExchange.hpp"
 
-bool BitcoinExchange::bixetile(std::string& input)
+static int bixetile(int year)
 {
-
+    if (year % 4 == 0)
+    {
+        if (year % 100 && !(year % 400))
+            return 28;
+        return 29;
+    }
+    else
+        return 28;
 }
 
-static bool is_valid_data(std::array<int, 3> t_array)
+bool is_valid_date(std::vector<int> t_array)
 {
-
+    static int month[] =  MONTH;
+    if (t_array[0] > 0)
+    {
+        if (t_array[1] > 0 && t_array[1] <= 12)
+        {
+            if (t_array[1] == 2 && bixetile(t_array[0]) >= t_array[2] && t_array[2] > 0)
+                return true;
+            else if (month[t_array[1] - 1] >= t_array[2] && t_array[2] > 0)
+                return true;
+            else
+                return false;
+        }
+        else//Error of Month
+        {
+            return (false);}
+    }
+    else//Error of Year
+    {
+        return (false);}
 }
 
-BitcoinExchange::BitcoinExchange()
-{}
+double wrapper_strtod(const std::string& str)
+{
+    double value;
+    char* endptr;
+    errno = 0;
+
+    value = strtod(str.c_str(), &endptr);
+    while (*endptr != '\0')
+    {
+        if (!isdigit(*endptr) && !isspace(*endptr))
+            throw std::invalid_argument("Not recognize a valid number");
+        endptr++;
+    }
+    if (value > std::numeric_limits<int>::max() || value < std::numeric_limits<int>::min())
+        throw std::invalid_argument("too large a number");
+    if (errno == ERANGE)
+        throw std::invalid_argument("number out of range");
+    return (value);
+}
+
+int wrapper_strtol(const std::string& str)
+{
+    char* endptr;
+    long int to_return;
+    errno = 0;
+
+    to_return = std::strtol(str.c_str(), &endptr, 10);
+    while (*endptr != '\0')
+    {
+        if (!isdigit(*endptr) && !isspace(*endptr))
+            throw std::invalid_argument("Not recognize a valid number");
+        endptr++;
+    }
+    if (errno == ERANGE)
+        throw std::invalid_argument("number out of range");
+    return (static_cast<int> (to_return));
+}
 
 BitcoinExchange::~BitcoinExchange()
 {}
 
-BitcoinExchange::BitcoinExchange(std::string& file)
+BitcoinExchange::BitcoinExchange()
 {
     std::ifstream ifs;
-    ifs.open("data.csv", std::ifstream::in);
+    ifs.open(DATA_BASE, std::ifstream::in);
     if (!ifs.is_open())//Open fail or Not 
-        return ();//Error
+        throw std::runtime_error("Open fail");
     std::string str;
-    while (std::getline(ifs, str))
+    std::getline(ifs, str);
+    if (str != "date,exchange_rate")//check the first line
+        throw std::invalid_argument("Invalid base");
+    while (std::getline(ifs, str))//fill my object with my file
     {
-        std::array<int, 3> t_array;
+        std::vector<int> t_array(3);
         std::stringstream ss(str);
         std::string buff_str;
         double value;
 
-        for (unsigned int i = 0; i < 3; i++)
+        for (unsigned int i = 0; i < 3; i++)//set the date with wrapper of stol
         {
-            try{
-                std::getline(ss, buff_str, (i < 2 ? '-': ','));
-                t_array[i] = stoi(buff_str, nullptr, 10);
-            }
-            catch(const std::exception &Exception){
-                std::cerr << Exception.what() << std::endl;}
-        
+            std::getline(ss, buff_str, (i < 2 ? '-': ','));
+            t_array[i] = wrapper_strtol(buff_str);
         }
-        if (!is_valid_data(t_array))
-            return ();//Error
+        if (!is_valid_date(t_array))//check if the date is valid
+        {
+            std::stringstream ss_error;
+            ss_error << "bad input => " << t_array[0] << "-" << std::setfill('0') << std::setw(2) << t_array[1] << "-" << std::setfill('0') << std::setw(2) << t_array[2]; 
+            throw std::invalid_argument(ss_error.str());
+        }
         std::getline(ss, buff_str);
-        try{
-            value = stod(buff_str);}
-        catch(const std::exception &Exception){
-            std::cerr << Exception.what() << std::endl;}
-        this->map.insert(std::pair<array<int, 3>, double> (t_array, value));
+        value = wrapper_strtod(buff_str);
+        if (value < 0)
+            throw std::invalid_argument("negatif number");
+        this->_data.insert(std::pair<std::vector<int>, double> (t_array, value));
     }
 }
 
@@ -55,6 +116,21 @@ BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& toCopy)
 {
     if (this == &toCopy)
         return (*this);
-    this.map = toCopy.map;
+    this->_data = toCopy._data;
     return (*this);
+}
+
+void BitcoinExchange::print()const
+{
+    std::map<std::vector<int>, double>::const_iterator it_begin = this->_data.begin();
+    std::map<std::vector<int>, double>::const_iterator it_end = this->_data.end();
+    for (;it_begin != it_end; it_begin++)
+    {
+        std::cout << it_begin->first[0] << " change for : " << it_begin->second <<  std::endl;
+    }
+}
+
+const std::map<std::vector<int>, double>&     BitcoinExchange::get_map()const
+{
+    return (this->_data);
 }
