@@ -1,0 +1,6 @@
+Faire l'exo avec une dqueue, et une list
+Ford-Jhonson
+Juste avant ce renseigner sur le nombre de jhonson (1,3,5,11 ...)
+Donc on fait le trie avec nos paires etc... Une fois arrive a la fin on creer notre main avec a1 b1 puis on insere b2
+et on remonte nos pair de pair de ... en les mettant a jour a chaque fois, jusqu'a arriver a notre a une suite de nombre qui 
+devra se faire integrer avec une recherche dichotomique et en utilisant le chiffre de Jacobstal

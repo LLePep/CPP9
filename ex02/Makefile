@@ -14,7 +14,7 @@ OBJ := $(subst $(D_SRC), $(D_OBJ), $(SRC:.cpp=.o))
 
 DEPS := $(OBJ:.o=.d)
 
-NAME := RPN
+NAME := PmergeMe
 
 all : $(NAME)
 
