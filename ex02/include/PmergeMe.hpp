@@ -8,9 +8,11 @@
 #include <cstdio>
 #include <iostream>
 #include <errno.h>
+#include <vector>
 #include <math.h>
 
-class MyDeque: public std::deque<unsigned int> {
+template <typename T>
+class MyDeque: public T {
 
 private:
     void sort_pair(unsigned int &recursion);
@@ -24,5 +26,7 @@ public:
     void fill(int argc, const char *argv[]);
     void sort();
 };
+
+#include "PmergeMe.tpp"
 
 #endif

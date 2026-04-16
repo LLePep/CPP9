@@ -5,7 +5,7 @@ int main(int argc, const char *argv[])
     if (argc < 2)
         return (1);
     {
-        MyDeque container;
+        MyDeque<std::vector<unsigned int> > container;
         try{
             container.fill(argc - 1, argv + 1);
             container.sort();    

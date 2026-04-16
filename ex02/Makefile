@@ -4,8 +4,7 @@ CFLAGS := -Wall -Wextra -Werror -g -MMD -MP -I include/ -std=c++98
 
 D_OBJ := .obj/
 
-F_SRC := main.cpp\
-		 PmergeMe.cpp
+F_SRC := main.cpp
 
 D_SRC := src/
 
