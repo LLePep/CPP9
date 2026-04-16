@@ -8,11 +8,13 @@
 #include <cstdio>
 #include <iostream>
 #include <errno.h>
+#include <math.h>
 
-class MyDeque: public std::deque<int> {
+class MyDeque: public std::deque<unsigned int> {
 
 private:
     void sort_pair(unsigned int &recursion);
+    void reverse_sort_pair(int recursion);
 
 public:
     MyDeque &operator=(const MyDeque &to_copy);
@@ -21,7 +23,6 @@ public:
     MyDeque(const MyDeque &to_copy);
     void fill(int argc, const char *argv[]);
     void sort();
-    void reverse_sort_pair(MyDeque &old, unsigned int recursion);
 };
 
 #endif
