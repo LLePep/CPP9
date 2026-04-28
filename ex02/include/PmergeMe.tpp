@@ -1,5 +1,3 @@
-#include "PmergeMe.hpp"
-
 static unsigned int pow2(int n)
 {
     double result = 1;
@@ -9,16 +7,29 @@ static unsigned int pow2(int n)
 }
 
 template <typename T>
-MyDeque<T>::MyDeque(){}
+std::string get_container_name();
+
+template <>
+inline std::string get_container_name<std::vector<unsigned int> >() { 
+    return "std::vector<unsigned int> "; 
+}
+
+template <>
+inline std::string get_container_name<std::deque<unsigned int> >() { 
+    return "std::deque<unsigned int> "; 
+}
 
 template <typename T>
-MyDeque<T>::~MyDeque(){}
+Pmerge<T>::Pmerge(){}
 
 template <typename T>
-MyDeque<T>::MyDeque(const MyDeque &to_copy): T(to_copy) {}
+Pmerge<T>::~Pmerge(){}
 
 template <typename T>
-MyDeque<T> &MyDeque<T>::operator=(const MyDeque &to_copy)
+Pmerge<T>::Pmerge(const Pmerge &to_copy): T(to_copy) {}
+
+template <typename T>
+Pmerge<T> &Pmerge<T>::operator=(const Pmerge &to_copy)
 {
     if (this == &to_copy)
         return (*this);
@@ -27,7 +38,7 @@ MyDeque<T> &MyDeque<T>::operator=(const MyDeque &to_copy)
 }
 
 template <typename T>
-void MyDeque<T>::fill(int argc, const char *argv[])
+void Pmerge<T>::fill(int argc, const char *argv[])
 {
     int i = 0;
     long int number;
@@ -37,20 +48,20 @@ void MyDeque<T>::fill(int argc, const char *argv[])
         {
             if (!isdigit(argv[i][l]))
                 {
-                    throw std::invalid_argument("");//!!! here
+                    throw std::invalid_argument("Error: digit");
                 }
         }
         errno = 0;
         number = strtol(argv[i], NULL, 10);
         if (errno != 0)
-            {std::perror("Error: strtol failed "); throw std::invalid_argument("");}
+            {std::perror("Error: strtol failed "); throw std::invalid_argument("Error: errno");}
         this->push_back(number);
         i++;
     }
 }
 
 template <typename T>
-void MyDeque<T>::sort_pair(unsigned int &recursion)
+void Pmerge<T>::sort_pair(unsigned int &recursion)
 {
     unsigned int block_size = pow2(recursion);
     unsigned int pair_size = block_size * 2;
@@ -68,16 +79,23 @@ void MyDeque<T>::sort_pair(unsigned int &recursion)
 }
 
 template <typename T>
-void creation_main(T &main_index, MyDeque<T> &old, unsigned int block_size)
+void creation_main(T &main_index, Pmerge<T> &old, unsigned int block_size)
 {
-    MyDeque<T> to_return;
-    for (unsigned int i = 0; i != main_index.size(); i++)
+    Pmerge<T> to_return;
+    unsigned int i = 0;
+    
+    for (; i != main_index.size(); i++)
     {
         for (unsigned int k = 0; k < block_size; k++)
         {
             if (main_index[i] + k < old.size())
                 to_return.push_back(old[main_index[i] + k]);
         }
+    }
+    if (i * block_size < old.size())
+    {
+        for (unsigned int n = 0; i * block_size + n < old.size(); n++)
+            to_return.push_back(old[i * block_size + n]);
     }
     old = to_return;
 }
@@ -121,7 +139,7 @@ T creation_pend_index(unsigned int total_size, unsigned int block_size)
 }
 
 template <typename T>
-void binairy_search(unsigned int block_size, unsigned int index_pend, T &main_index, MyDeque<T> &main)
+void binairy_search(unsigned int block_size, unsigned int index_pend, T &main_index, Pmerge<T> &main)
 {
     unsigned int value = main[index_pend + (block_size - 1)];
 
@@ -149,14 +167,13 @@ void binairy_search(unsigned int block_size, unsigned int index_pend, T &main_in
 }
 
 template <typename T>
-void MyDeque<T>::reverse_sort_pair(int recursion)
+void Pmerge<T>::reverse_sort_pair(int recursion)
 {
     while (recursion >= 0)
     {
         unsigned int block_size = pow2(recursion);
         unsigned int pair_size = block_size * 2;
 
-        //unsigned int n = (this->size() + pair_size - 1) / pair_size;//regarder ca
         T jacob_suite = sequence_jacob_stahl<T>(round(static_cast<double> (this->size()) / static_cast<double> (pair_size)));
 
         T main_index = creation_main_index<T>(this->size(), block_size);
@@ -183,21 +200,54 @@ void MyDeque<T>::reverse_sort_pair(int recursion)
 }
 
 template <typename T>
-void MyDeque<T>::sort()
+void Pmerge<T>::sort()
 {
     unsigned int recursion = 0;
     this->sort_pair(recursion);
-    std::cout << "First sort:";
-    for (typename T::const_iterator it = this->begin(); it != this->end(); it++)
-    {
-        std::cout << " " << *it;
-    }
-    std::cout << std::endl;
     this->reverse_sort_pair(recursion);
-    std::cout << "Finish sort:";
+}
+
+template <typename T>
+void Pmerge<T>::display()
+{
     for (typename T::const_iterator it = this->begin(); it != this->end(); it++)
+        std::cout << *it << " ";
+}
+
+template <typename T>
+void Pmerge<T>::check()
+{
+    for (unsigned int i = 0; i < this->size() - 1; i++)
     {
-        std::cout << " " << *it;
+        if ((*this)[i] > (*this)[i + 1])
+            {std::cout << "Not sort: " << (*this)[i] << " "<< (*this)[i + 1] << std::endl; return;}
     }
-    //this->reverse_sort_pair(recursion);
+    std::cout << "List sorted" << std::endl;
+}
+
+template <typename T>
+void Pmerge<T>::print_nano_seconde_timespec(unsigned int size, struct timespec time)
+{
+    struct timespec time_comp;
+    
+    if (clock_gettime(CLOCK_MONOTONIC, &time_comp))
+        return ;
+
+    long seconde = time_comp.tv_sec - time.tv_sec;
+    long nanoseconde = time_comp.tv_nsec - time.tv_nsec;
+    
+    if (nanoseconde < 0)//adjust the calcul for no negat
+    {
+        seconde -= 1;
+        nanoseconde += 1000000000;
+    }
+    
+    if (seconde == 0 && nanoseconde < 100000)// nanoseconde < 100us
+        std::cout << "Time to process a range of " << size << " elements with " << get_container_name<T>() << (seconde * 1000000000 + nanoseconde) << "ns" << std::endl;
+    else if (seconde == 0 && nanoseconde < 100000000)// nanoseconde < 100ms
+        std::cout << "Time to process a range of " << size << " elements with " << get_container_name<T>() << (seconde * 1000000 + nanoseconde/1000) << "us" << std::endl;
+    else if (seconde < 100)//nanoseconde < 100s
+        std::cout << "Time to process a range of " << size << " elements with " << get_container_name<T>() << (seconde * 1000 + nanoseconde/1000000) << "ms" << std::endl;
+    else
+        std::cout << "Time to process a range of " << size << " elements with " << get_container_name<T>() << (seconde + nanoseconde/1000000000) << "s" << std::endl;
 }

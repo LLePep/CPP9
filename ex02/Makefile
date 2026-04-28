@@ -1,6 +1,6 @@
 CC := c++
 
-CFLAGS := -Wall -Wextra -Werror -g -MMD -MP -I include/ -std=c++98
+CFLAGS := -Wall -Wextra -Werror -MMD -MP -I include/ -std=c++98
 
 D_OBJ := .obj/
 

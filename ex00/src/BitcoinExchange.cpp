@@ -1,5 +1,27 @@
 #include "BitcoinExchange.hpp"
 
+
+void parse_file(std::list<int> &t_array, double &value, std::stringstream &ss, char separator)
+{
+    std::string buff_str;
+    std::list<int>::const_iterator it = t_array.begin();
+
+    for (unsigned int i = 0; i < 3; i++, it++)//set the date with wrapper of stol
+    {
+        std::getline(ss, buff_str, (i < 2 ? '-': separator));
+        t_array.push_back(wrapper_strtol(buff_str));
+    }
+    if (!is_valid_date(t_array))//check if the date is valid
+    {
+        std::stringstream ss_error;
+        it = t_array.begin();
+        ss_error << "bad input => " << *it++ << "-" << std::setfill('0') << std::setw(2) << *it++ << "-" << std::setfill('0') << std::setw(2) << *it++; 
+        throw std::invalid_argument(ss_error.str());
+    }
+    std::getline(ss, buff_str);
+    value = wrapper_strtod(buff_str);//buff_str
+}
+
 static int bixetile(int year)
 {
     if (year % 4 == 0)
@@ -12,16 +34,19 @@ static int bixetile(int year)
         return 28;
 }
 
-bool is_valid_date(std::vector<int> t_array)
+bool is_valid_date(std::list<int> t_array)
 {
     static int month[] =  MONTH;
-    if (t_array[0] > 0)
+    std::list<int>::const_iterator it_3 = t_array.begin();
+    std::list<int>::const_iterator it_1 = it_3++;
+    std::list<int>::const_iterator it_2 = it_3++;
+    if (*it_1 > 0)
     {
-        if (t_array[1] > 0 && t_array[1] <= 12)
+        if (*it_2 > 0 && *it_2 <= 12)
         {
-            if (t_array[1] == 2 && bixetile(t_array[0]) >= t_array[2] && t_array[2] > 0)
+            if (*it_2 == 2 && bixetile(*it_1) >= *it_3 && *it_3 > 0)
                 return true;
-            else if (month[t_array[1] - 1] >= t_array[2] && t_array[2] > 0)
+            else if (month[*it_2 - 1] >= *it_3 && *it_3 > 0)
                 return true;
             else
                 return false;
@@ -88,27 +113,14 @@ BitcoinExchange::BitcoinExchange()
         throw std::invalid_argument("Invalid base");
     while (std::getline(ifs, str))//fill my object with my file
     {
-        std::vector<int> t_array(3);
+        std::list<int> t_array;
         std::stringstream ss(str);
-        std::string buff_str;
         double value;
 
-        for (unsigned int i = 0; i < 3; i++)//set the date with wrapper of stol
-        {
-            std::getline(ss, buff_str, (i < 2 ? '-': ','));
-            t_array[i] = wrapper_strtol(buff_str);
-        }
-        if (!is_valid_date(t_array))//check if the date is valid
-        {
-            std::stringstream ss_error;
-            ss_error << "bad input => " << t_array[0] << "-" << std::setfill('0') << std::setw(2) << t_array[1] << "-" << std::setfill('0') << std::setw(2) << t_array[2]; 
-            throw std::invalid_argument(ss_error.str());
-        }
-        std::getline(ss, buff_str);
-        value = wrapper_strtod(buff_str);
+        parse_file(t_array, value, ss, SEPARATOR_DATA_FILE);
         if (value < 0)
             throw std::invalid_argument("negatif number");
-        this->_data.insert(std::pair<std::vector<int>, double> (t_array, value));
+        this->_data.insert(std::pair<std::list<int>, double> (t_array, value));
     }
 }
 
@@ -122,15 +134,17 @@ BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& toCopy)
 
 void BitcoinExchange::print()const
 {
-    std::map<std::vector<int>, double>::const_iterator it_begin = this->_data.begin();
-    std::map<std::vector<int>, double>::const_iterator it_end = this->_data.end();
+    std::map<std::list<int>, double>::const_iterator it_begin = this->_data.begin();
+    std::map<std::list<int>, double>::const_iterator it_end = this->_data.end();
+    std::list<int>::const_iterator it_list;
     for (;it_begin != it_end; it_begin++)
     {
-        std::cout << it_begin->first[0] << " change for : " << it_begin->second <<  std::endl;
+        it_list = it_begin->first.begin();
+        std::cout <<  *it_list << " change for : " << it_begin->second <<  std::endl;
     }
 }
 
-const std::map<std::vector<int>, double>&     BitcoinExchange::get_map()const
+const std::map<std::list<int>, double>&     BitcoinExchange::get_map()const
 {
     return (this->_data);
 }

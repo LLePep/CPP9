@@ -3,16 +3,58 @@
 int main(int argc, const char *argv[])
 {
     if (argc < 2)
-        return (1);
-    {
-        MyDeque<std::vector<unsigned int> > container;
-        try{
-            container.fill(argc - 1, argv + 1);
-            container.sort();    
-        }
-        catch(const std::exception &Exception){
-            std::cerr << Exception.what() << std::endl;}
+        {std::cout << "Not enough information" << std::endl; return (1);}
 
+    try
+    {
+        {//This scope is for filling the container. I am not sure exactly how my CPU handles it,
+        //but I believe it populates the cache, making the next pass faster than the previous one
+            struct timespec time;
+            Pmerge<std::vector<unsigned int> > container;
+            
+            if (clock_gettime(CLOCK_MONOTONIC, &time))
+                throw(std::invalid_argument("Error: gettime"));
+            container.fill(argc - 1, argv + 1);
+            std::cout << "Before : "; container.display(); std::cout << std::endl;
+            container.sort();
+            std::cout << "After : "; container.display(); std::cout << std::endl;
+        }
+
+        {
+            struct timespec time;
+            Pmerge<std::vector<unsigned int> > container;
+
+            if (clock_gettime(CLOCK_MONOTONIC, &time))
+                throw(std::invalid_argument("Error: gettime"));
+            container.fill(argc - 1, argv + 1);
+            container.sort();
+            container.print_nano_seconde_timespec(time);
+            
+        }
+        
+        {//This scope is for filling the container. I am not sure exactly how my CPU handles it,
+        //but I believe it populates the cache, making the next pass faster than the previous one
+            struct timespec time;
+            Pmerge<std::deque<unsigned int> > container;
+            
+            if (clock_gettime(CLOCK_MONOTONIC, &time))
+                throw(std::invalid_argument("Error: gettime"));
+            container.fill(argc - 1, argv + 1);
+            container.sort();
+        }
+
+        {
+            struct timespec time;
+            Pmerge<std::deque<unsigned int> > container;
+
+            if (clock_gettime(CLOCK_MONOTONIC, &time))
+                throw(std::invalid_argument("Error: gettime"));
+            container.fill(argc - 1, argv + 1);
+            container.sort();
+            container.print_nano_seconde_timespec(time);
+        }
     }
+    catch(const std::exception &Exception){
+        std::cout << Exception.what() << std::endl;}
     return (0);
 }

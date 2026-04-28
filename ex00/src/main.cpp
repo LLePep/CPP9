@@ -1,8 +1,9 @@
 #include "BitcoinExchange.hpp"
 
-static void print_change_bitcoin(std::vector<int> t_array, double bitcoin_number, double bitcoin_change)
+static void print_change_bitcoin(std::list<int> t_array, double bitcoin_number, double bitcoin_change)
 {
-    std::cout << t_array[0] << "-" << std::setfill('0') << std::setw(2) << t_array[1] << "-" << std::setfill('0') << std::setw(2) << t_array[2] << " => "
+    std::list<int>::const_iterator it = t_array.begin();
+    std::cout << *it++ << "-" << std::setfill('0') << std::setw(2) << *it++ << "-" << std::setfill('0') << std::setw(2) << *it++ << " => "
     << bitcoin_number << " = " << bitcoin_change * bitcoin_number << std::endl;
 }
 
@@ -25,36 +26,25 @@ int main(int argc, char** argv)
             throw std::invalid_argument("Invalid base.");
         while (std::getline(ifs, str))
         {
-            std::vector<int> t_array(3);
-            std::string buff_str;
+            std::list<int> t_array;
             std::stringstream ss(str);
             double value;
 
             try{
-                for (unsigned int i = 0; i < 3; i++)//set the date with wrapper of stol
-                {
-                    std::getline(ss, buff_str, (i < 2 ? '-': '|'));
-                    t_array[i] = wrapper_strtol(buff_str);
-                }
-                if (!is_valid_date(t_array))//check if the date is valid
-                {
-                    std::stringstream ss_error;
-                    ss_error << "bad input => " << t_array[0] << "-" << std::setfill('0') << std::setw(2) << t_array[1] << "-" << std::setfill('0') << std::setw(2) << t_array[2]; 
-                    throw std::invalid_argument(ss_error.str());
-                }
-                std::getline(ss, buff_str);
-                value = wrapper_strtod(buff_str);//buff_str
-                std::map<std::vector<int>, double>::const_iterator it = data_change.get_map().upper_bound(t_array);
-                if (it == data_change.get_map().begin())//!!! regarder les extremum
+                parse_file(t_array, value, ss, SEPARATOR_INPUT_FILE);
+                if (value < 0)
+                    throw std::invalid_argument("not a positive number.");
+                std::map<std::list<int>, double>::const_iterator it = data_change.get_map().upper_bound(t_array);
+                if (it == data_change.get_map().begin())
                     {print_change_bitcoin(t_array, value, it->second);}
                 else
                     print_change_bitcoin(t_array, value, (--it)->second);
-                }
+            }
             catch(const std::exception &Exception){
-                std::cerr << "Error: " << Exception.what() << std::endl;}
+                std::cout << "Error: " << Exception.what() << std::endl;}
         }
     }
     catch(const std::exception &Exception){
-        std::cerr << "Error: " << Exception.what() << std::endl;}
+        std::cout << "Error: " << Exception.what() << std::endl;}
     return (0);
 }
