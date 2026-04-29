@@ -1,6 +1,5 @@
 #include "BitcoinExchange.hpp"
 
-
 void parse_file(std::list<int> &t_array, double &value, std::stringstream &ss, char separator)
 {
     std::string buff_str;

@@ -31,8 +31,8 @@ public:
     void check();
     void fill(int argc, const char *argv[]);
     void sort();
-    void print_nano_seconde_timespec(unsigned int size, struct timespec time);
 };
+void print_nano_seconde_timespec(unsigned int size, struct timespec time);
 
 #include "PmergeMe.tpp"
 

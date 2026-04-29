@@ -226,7 +226,7 @@ void Pmerge<T>::check()
 }
 
 template <typename T>
-void Pmerge<T>::print_nano_seconde_timespec(unsigned int size, struct timespec time)
+void print_nano_seconde_timespec(unsigned int size, struct timespec time)
 {
     struct timespec time_comp;
     

@@ -28,7 +28,7 @@ int main(int argc, const char *argv[])
                 throw(std::invalid_argument("Error: gettime"));
             container.fill(argc - 1, argv + 1);
             container.sort();
-            container.print_nano_seconde_timespec(time);
+            print_nano_seconde_timespec<std::vector<unsigned int> >(container.size(), time);
             
         }
         
@@ -51,7 +51,7 @@ int main(int argc, const char *argv[])
                 throw(std::invalid_argument("Error: gettime"));
             container.fill(argc - 1, argv + 1);
             container.sort();
-            container.print_nano_seconde_timespec(time);
+            print_nano_seconde_timespec<std::deque<unsigned int> >(container.size(), time);
         }
     }
     catch(const std::exception &Exception){
