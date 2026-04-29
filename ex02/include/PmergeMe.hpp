@@ -3,17 +3,13 @@
 
 #include <stdexcept>
 #include <deque>
-#include <stdlib.h>
 #include <stdio.h>
 #include <cstdio>
 #include <iostream>
 #include <errno.h>
 #include <vector>
-#include <time.h>
-#include <math.h>
-#include <typeinfo>
-#include <cxxabi.h>
-#include <memory>
+#include <ctime>
+#include <cmath>
 
 template <typename T>
 class Pmerge: public T {
