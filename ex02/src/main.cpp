@@ -55,6 +55,6 @@ int main(int argc, const char *argv[])
         }
     }
     catch(const std::exception &Exception){
-        std::cout << Exception.what() << std::endl;}
+        std::cerr << Exception.what() << std::endl;}
     return (0);
 }

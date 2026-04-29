@@ -72,8 +72,6 @@ double wrapper_strtod(const std::string& str)
             throw std::invalid_argument("Not recognize a valid number");
         endptr++;
     }
-    if (value > std::numeric_limits<int>::max() || value < std::numeric_limits<int>::min())
-        throw std::invalid_argument("too large a number");
     if (errno == ERANGE)
         throw std::invalid_argument("number out of range");
     return (value);

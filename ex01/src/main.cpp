@@ -11,7 +11,9 @@ int main(int argc, char **argv)
         MyStack.fill(str);
         std::cout << MyStack.calculate();}
     catch(const std::exception &Exception){
-        std::cout << "Error: " << Exception.what() << std::endl;}
+        std::cerr << "Error: " << Exception.what() << std::endl;
+        return (1);    
+    }
 
     return (0);
 }

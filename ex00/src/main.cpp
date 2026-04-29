@@ -34,9 +34,11 @@ int main(int argc, char** argv)
                 parse_file(t_array, value, ss, SEPARATOR_INPUT_FILE);
                 if (value < 0)
                     throw std::invalid_argument("not a positive number.");
+                else if (value > 1000)
+                    throw std::invalid_argument("too large a number");
                 std::map<std::list<int>, double>::const_iterator it = data_change.get_map().upper_bound(t_array);
                 if (it == data_change.get_map().begin())
-                    {print_change_bitcoin(t_array, value, it->second);}
+                    throw std::invalid_argument("date to old");
                 else
                     print_change_bitcoin(t_array, value, (--it)->second);
             }
